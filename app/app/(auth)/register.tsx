@@ -1,3 +1,5 @@
+import { useRegisterMutation } from "@/store/api";
+import { setCredentials } from "@/store/authSlice";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -16,12 +18,16 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const router = useRouter();
+
+  const [register, { isLoading }] = useRegisterMutation();
+  const dispatch = useDispatch();
 
   const handleRegister = async () => {
     if (!email.trim() || !password.trim()) {
@@ -30,20 +36,11 @@ const Register = () => {
     }
 
     const payload = { email, password, name };
-    console.log("Register data", email, password, name);
 
     try {
-      const response = await fetch(
-        `${process.env.EXPO_PUBLIC_API_URL}/auth/register`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
-
-      const result = await response.json();
-      console.log("register result", result);
+      const result = await register(payload).unwrap();
+      dispatch(setCredentials({ user: result.user, token: result.token }));
+      router.replace("/(tabs)");
     } catch (error: any) {
       Alert.alert(
         "Register Failed",
