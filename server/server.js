@@ -12,6 +12,7 @@ const messageRoutes = require('./routes/messages');
 const Message = require('./models/Message');
 const Conversation = require('./models/Conversation');
 const User = require('./models/User');
+const logger = require("./middleware/logger");
 
 const app = express()
 const server = http.createServer(app)
@@ -25,10 +26,11 @@ const io = socketIo(server, {
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(logger);
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api', messageRoutes);
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/message', messageRoutes);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
@@ -123,9 +125,12 @@ io.on('connection', (socket) => {
   });
 });
 
+app.get("/", (req, res) => {
+  res.send({status: 200,message: "Server Running"});
+});
 
+const PORT = process.env.PORT || 4000;
 
-const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

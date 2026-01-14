@@ -17,25 +17,39 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const Login = () => {
+const Register = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const router = useRouter();
 
-  const handleNext = async () => {
+  const handleRegister = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill in both fields");
       return;
     }
 
-    router.push("/(tabs)");
-    // try {
-    // } catch (error: any) {
-    //   Alert.alert(
-    //     "Login Failed",
-    //     error.data?.message || "Something went wrong"
-    //   );
-    // }
+    const payload = { email, password, name };
+    console.log("Register data", email, password, name);
+
+    try {
+      const response = await fetch(
+        `${process.env.EXPO_PUBLIC_API_URL}/auth/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const result = await response.json();
+      console.log("register result", result);
+    } catch (error: any) {
+      Alert.alert(
+        "Register Failed",
+        error.data?.message || "Something went wrong"
+      );
+    }
   };
 
   return (
@@ -54,7 +68,21 @@ const Login = () => {
           >
             {/* Form Content */}
             <View className="flex-1 px-5">
-              <Text className="text-xl text-center my-5">Login</Text>
+              <Text className="text-xl text-center my-5">Register</Text>
+
+              {/* Name Input */}
+              <View className="mb-5">
+                <Text className="mb-2">Name</Text>
+                <TextInput
+                  className="border border-neutral-light-active rounded-lg p-3 bg-white"
+                  placeholder="Mohammad Anik"
+                  placeholderTextColor="#7C7C7C"
+                  value={name}
+                  onChangeText={setName}
+                  autoCapitalize="none"
+                  keyboardType="default"
+                />
+              </View>
 
               {/* Email Input */}
               <View className="mb-5">
@@ -85,19 +113,10 @@ const Login = () => {
                 />
               </View>
 
-              {/* Next Button */}
+              {/* register button */}
               <View className="mt-10">
                 <TouchableOpacity
-                  onPress={handleNext}
-                  className="border py-2 rounded-md items-center"
-                >
-                  <Text>Login</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View className="mt-auto">
-                <TouchableOpacity
-                  onPress={() => router.push("/(auth)/register")}
+                  onPress={handleRegister}
                   className="border py-2 rounded-md items-center"
                 >
                   <Text>Register</Text>
@@ -111,4 +130,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
