@@ -31,7 +31,26 @@ export const api = createApi({
     getUsers: builder.query({
       query: () => "/user/all",
     }),
+
+    getOrCreateConversation: builder.mutation({
+      query: (recipientId) => ({
+        url: "/message/conversation",
+        method: "POST",
+        body: { recipientId },
+      }),
+    }),
+
+    getMessages: builder.query({
+      query: (conversationId) =>
+        `/message/conversation/${conversationId}/messages`,
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation, useGetUsersQuery } = api;
+export const {
+  useRegisterMutation,
+  useLoginMutation,
+  useGetUsersQuery,
+  useGetOrCreateConversationMutation,
+  useGetMessagesQuery,
+} = api;

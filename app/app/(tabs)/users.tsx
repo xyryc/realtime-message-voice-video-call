@@ -15,7 +15,7 @@ const Users = () => {
         data={users}
         renderItem={({ item }) => (
           <TouchableOpacity
-            onPress={() => router.push("/chat/[userId]")}
+            onPress={() => router.push(`/chat/${item._id}`)}
             className="border-b border-gray-300 px-4 py-2"
           >
             <Text className="text-xl font-bold">{item.name}</Text>
