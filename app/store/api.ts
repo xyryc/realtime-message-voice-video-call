@@ -27,7 +27,11 @@ export const api = createApi({
         body: payload,
       }),
     }),
+
+    getUsers: builder.query({
+      query: () => "/user/all",
+    }),
   }),
 });
 
-export const { useRegisterMutation, useLoginMutation } = api;
+export const { useRegisterMutation, useLoginMutation, useGetUsersQuery } = api;

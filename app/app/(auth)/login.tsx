@@ -1,3 +1,5 @@
+import { useLoginMutation } from "@/store/api";
+import { setCredentials } from "@/store/authSlice";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -16,26 +18,33 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleNext = async () => {
+  const [login, { isLoading }] = useLoginMutation();
+  const dispatch = useDispatch();
+
+  const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert("Error", "Please fill in both fields");
       return;
     }
 
-    router.push("/(tabs)");
-    // try {
-    // } catch (error: any) {
-    //   Alert.alert(
-    //     "Login Failed",
-    //     error.data?.message || "Something went wrong"
-    //   );
-    // }
+    const payload = { email, password };
+
+    try {
+      const result = await login(payload).unwrap();
+      console.log("login", result);
+      dispatch(setCredentials({ user: result.user, token: result.token }));
+      router.replace("/(tabs)");
+    } catch (error: any) {
+      console.log("login", error);
+      Alert.alert("Login failed", error.data?.error || "Something went wrong");
+    }
   };
 
   return (
@@ -85,10 +94,10 @@ const Login = () => {
                 />
               </View>
 
-              {/* Next Button */}
+              {/* login Button */}
               <View className="mt-10">
                 <TouchableOpacity
-                  onPress={handleNext}
+                  onPress={handleLogin}
                   className="border py-2 rounded-md items-center"
                 >
                   <Text>Login</Text>

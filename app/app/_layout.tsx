@@ -14,6 +14,8 @@ import { PersistGate } from "redux-persist/integration/react";
 import { useEffect } from "react";
 
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
+
   function NavigationContent() {
     const router = useRouter();
     const segments = useSegments();
@@ -37,8 +39,6 @@ export default function RootLayout() {
       </Stack>
     );
   }
-
-  const colorScheme = useColorScheme();
 
   return (
     <Provider store={store}>
