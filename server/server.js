@@ -9,9 +9,12 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const messageRoutes = require('./routes/messages');
+const userRoutes = require("./routes/users")
+
 const Message = require('./models/Message');
 const Conversation = require('./models/Conversation');
 const User = require('./models/User');
+
 const logger = require("./middleware/logger");
 
 const app = express()
@@ -31,6 +34,7 @@ app.use(logger);
 // Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/message', messageRoutes);
+app.use('/api/v1/user', userRoutes)
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
