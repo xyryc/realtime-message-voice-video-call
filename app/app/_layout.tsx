@@ -12,6 +12,7 @@ import { Provider, useSelector } from "react-redux";
 import { persistor, RootState, store } from "@/store/store";
 import { PersistGate } from "redux-persist/integration/react";
 import { useEffect } from "react";
+import { socket } from "@/utils/socket";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -20,6 +21,14 @@ export default function RootLayout() {
     const router = useRouter();
     const segments = useSegments();
     const token = useSelector((state: RootState) => state.auth.token);
+
+    useEffect(() => {
+      if (token) {
+        socket.connect();
+      } else {
+        socket.disconnect();
+      }
+    });
 
     useEffect(() => {
       const inAuthGroup = segments[0] === "(auth)";
