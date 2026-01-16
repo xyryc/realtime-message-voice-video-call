@@ -10,6 +10,8 @@ const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/users");
 const messageRoutes = require("./routes/message");
 const logger = require("./middleware/logger");
+const Message = require("./models/Message");
+const Conversation = require("./models/Conversation");
 
 const app = express();
 const server = http.createServer(app);
@@ -52,6 +54,40 @@ io.use((socket, next) => {
 // socket.io connection
 io.on("connection", (socket) => {
   console.log("User connected", socket.id, "UserID", socket.userId);
+
+  // join conversation room
+  socket.on("join_conversation", (conversationId) => {
+    socket.join(conversationId);
+    console.log(`User ${socket.userId} joined conversation ${conversationId}`);
+  });
+
+  // send message
+  socket.on("send_message", async (data) => {
+    try {
+      const { conversationId, content, type } = data;
+
+      // save message to db
+      const message = new Message({
+        conversationId,
+        sender: socket.userId,
+        content,
+        type: type || "text",
+      });
+      await message.save();
+      await message.populate("sender", "name email avatar");
+
+      // update conversation last message
+      await Conversation.findByIdAndUpdate(conversationId, {
+        lastMessage: message._id,
+      });
+
+      // broadcast to conversation room
+      io.to(conversationId).emit("receive_message", message);
+      console.log("Message sent: ", message._id);
+    } catch (error) {
+      console.error("Send message error: ", error);
+    }
+  });
 
   socket.on("disconnect", () => {
     console.log("User disconnected", socket.id);
