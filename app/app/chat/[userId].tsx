@@ -22,11 +22,11 @@ const UserId = () => {
 
   const [getConversation, { isLoading: loadingConversation }] =
     useGetOrCreateConversationMutation();
-  const {
-    data: messages,
-    isLoading: loadingMessages,
-    error,
-  } = useGetMessagesQuery(conversationId, { skip: !conversationId });
+
+  const { data: messages, isLoading: loadingMessages } = useGetMessagesQuery(
+    conversationId || "skip",
+    { skip: !conversationId }
+  );
 
   useEffect(() => {
     getConversation(userId)

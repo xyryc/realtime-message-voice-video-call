@@ -10,7 +10,7 @@ export const api = createApi({
       return headers;
     },
   }),
-  tagTypes: ["Meesages"]
+  tagTypes: ["Meesages"],
 
   endpoints: (builder) => ({
     register: builder.mutation({
@@ -44,7 +44,7 @@ export const api = createApi({
     getMessages: builder.query({
       query: (conversationId) =>
         `/message/conversation/${conversationId}/messages`,
-      providesTags: ["Meesages"]
+      providesTags: ["Meesages"],
     }),
   }),
 });
