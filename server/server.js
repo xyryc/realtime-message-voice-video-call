@@ -55,37 +55,45 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   console.log("User connected", socket.id, "UserID", socket.userId);
 
-  // join conversation room
-  socket.on("join_conversation", (conversationId) => {
-    socket.join(conversationId);
-    console.log(`User ${socket.userId} joined conversation ${conversationId}`);
-  });
+  // join user to thier own room
+  socket.join(socket.userId);
 
-  // send message
+  // send message event
   socket.on("send_message", async (data) => {
     try {
-      const { conversationId, content, type } = data;
+      const { conversationId, content, recipientId } = data;
+      console.log("📤 Sending message:", {
+        conversationId,
+        content,
+        recipientId,
+      });
 
-      // save message to db
+      // create message in database
       const message = new Message({
         conversationId,
         sender: socket.userId,
         content,
-        type: type || "text",
+        type: "text",
       });
       await message.save();
       await message.populate("sender", "name email avatar");
 
-      // update conversation last message
+      // update conversations last message
       await Conversation.findByIdAndUpdate(conversationId, {
         lastMessage: message._id,
       });
+      console.log("✅ Message saved:", message._id);
 
-      // broadcast to conversation room
-      io.to(conversationId).emit("receive_message", message);
-      console.log("Message sent: ", message._id);
+      // emit to sender (confirmation)
+      socket.emit("message_sent", message);
+
+      // emit to recipient (real time delivery)
+      io.to(recipientId).emit("receive_message", message);
+
+      console.log("📨 Message delivered to:", recipientId);
     } catch (error) {
-      console.error("Send message error: ", error);
+      console.error("❌ Error sending message:", error);
+      socket.emit("message_error", { message: error.message });
     }
   });
 
