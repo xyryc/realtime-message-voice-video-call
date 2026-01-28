@@ -10,7 +10,7 @@ const Users = () => {
   const router = useRouter();
 
   return (
-    <SafeAreaView className="mx-5">
+    <SafeAreaView className="mx-5 bg-white">
       <FlatList
         data={users}
         renderItem={({ item }) => (
